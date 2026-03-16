@@ -1,0 +1,10 @@
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+.venv\Scripts\Activate.ps1
+#session wise allowing venv to run on this system
+
+pip install -r requirements.txt
+
+cd backend
+python -m uvicorn app:app --host 0.0.0.0 --port 8000 --reload
+#open another terminal
+ollama serve

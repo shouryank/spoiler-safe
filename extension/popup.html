@@ -1,0 +1,45 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Spoiler-Safe Q&A</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="header">
+    <div class="title">Spoiler-Safe Q&A</div>
+    <div class="sub" id="status">Detecting player…</div>
+  </div>
+
+  <div class="meta">
+    <div><b>Title:</b> <span id="movieTitle">—</span></div>
+    <div><b>Time:</b> <span id="timeNow">—</span> <span id="timeDur"></span></div>
+    <div><b>Platform:</b> <span id="platform">—</span></div>
+  </div>
+
+  <div class="controls">
+    <label>Mode:</label>
+    <select id="mode" name="mode" aria-label="Spoiler mode">
+      <option value="strict">Strict (no spoilers)</option>
+      <option value="hint">Hint (nudge only)</option>
+      <option value="full">Full (spoilers allowed)</option>
+    </select>
+  </div>
+
+  <div class="upload">
+    <label for="subFile"><b>Optional:</b> Upload subtitles (SRT/VTT)</label>
+    <input type="file" id="subFile" accept=".srt,.vtt" />
+    <div class="tiny" id="subInfo">If Netflix subtitles can’t be captured, upload here.</div>
+  </div>
+
+  <div class="chat" id="chat"></div>
+
+  <div class="inputRow">
+    <input id="q" placeholder="Ask about what you've seen so far…" />
+    <button id="send">Send</button>
+  </div>
+
+  <script src="srt.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>
