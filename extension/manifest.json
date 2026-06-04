@@ -1,31 +1,43 @@
 {
   "manifest_version": 3,
-  "name": "Spoiler-Safe Movie Q&A (MVP)",
-  "version": "0.1.0",
-  "description": "Ask questions about what you've watched so far without spoilers (YouTube + Netflix).",
-  "permissions": ["storage", "activeTab", "scripting"],
-  "host_permissions": [
-    "https://www.youtube.com/*",
-    "https://www.netflix.com/*",
-    "http://localhost:8000/*"
+  "name": "Spoiler Safe",
+  "version": "2.0.0",
+  "description": "Ask spoiler-safe questions about the video you are currently watching.",
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "storage"
   ],
-  "action": {
-    "default_popup": "popup.html",
-    "default_title": "Spoiler-Safe Q&A"
-  },
+  "host_permissions": [
+    "http://127.0.0.1:8000/*",
+    "http://localhost:8000/*",
+    "https://www.youtube.com/*",
+    "https://*.youtube.com/*"
+  ],
   "background": {
     "service_worker": "background.js"
   },
+  "action": {
+    "default_title": "Spoiler Safe"
+  },
   "content_scripts": [
     {
-      "matches": ["https://www.youtube.com/*"],
-      "js": ["content_youtube.js"],
+      "matches": [
+        "https://www.youtube.com/*"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "css": [
+        "styles.css"
+      ],
       "run_at": "document_idle"
-    },
+    }
+  ],
+  "web_accessible_resources": [
     {
-      "matches": ["https://www.netflix.com/*"],
-      "js": ["content_netflix.js"],
-      "run_at": "document_idle"
+      "resources": ["styles.css"],
+      "matches": ["<all_urls>"]
     }
   ]
 }
