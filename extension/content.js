@@ -330,7 +330,7 @@ async function handleAsk() {
     const data = await response.json();
 
     setAnswer(data.answer || "No answer returned.");
-    setMeta(`Context used through ${formatTime(currentTime)} · ${transcript.length} transcript lines`);
+    setMeta(`Context through ${formatTime(currentTime)} · ${data.context_lines_used} retrieved chunks · ${data.context_chars_used} characters`);
     setStatus("Ready.");
   } catch (error) {
     console.error(error);

@@ -32,6 +32,10 @@ Before you begin, ensure you have the following installed:
    ```bash
    ollama pull llama3.1:8b
    ```
+4. Download the local embedding model used for semantic retrieval:
+   ```bash
+   ollama pull nomic-embed-text
+   ```
 
 ## Project Structure
 
@@ -146,6 +150,14 @@ You can customize the following settings by setting environment variables before
 $env:OLLAMA_URL = "http://127.0.0.1:11434/api/generate"
 $env:OLLAMA_MODEL = "llama3.1:8b"
 $env:OLLAMA_TIMEOUT_SECONDS = "120"
+
+# RAG Configuration
+$env:OLLAMA_EMBED_MODEL = "nomic-embed-text"
+$env:OLLAMA_EMBED_URL = "http://127.0.0.1:11434/api/embed"
+$env:RAG_DB_PATH = "backend/rag_vectors.sqlite3"
+$env:RAG_TOP_K = "6"
+$env:RAG_CHUNK_CHARS = "900"
+$env:RAG_MAX_CONTEXT_CHARS = "12000"
 ```
 
 ### Backend API Endpoints
@@ -188,15 +200,20 @@ $env:OLLAMA_TIMEOUT_SECONDS = "120"
 ## Key Features in Detail
 
 ### RAG (Retrieval-Augmented Generation)
-The system uses RAG to build context from video transcripts, ensuring:
-- Only relevant transcript segments are used
-- Responses stay within character limits
-- Context is always relative to the current video timestamp
+The backend implements local semantic RAG:
+- Transcript lines at or before the watched timestamp are grouped into overlapping chunks.
+- Ollama's `nomic-embed-text` model embeds new chunks and the user's question.
+- Embeddings are cached persistently in the local `backend/rag_vectors.sqlite3` vector store.
+- Cosine similarity selects relevant chunks from anywhere in the watched history.
+- The latest watched chunk is also included for questions such as "what just happened?".
+- Retrieval is capped by `RAG_TOP_K` and `RAG_MAX_CONTEXT_CHARS`; the cap is characters, not tokens.
+
+The SQLite implementation performs exact cosine search and is a good fit for individual video transcripts. A specialized approximate-nearest-neighbor database would become useful at much larger, cross-video scale, but is not necessary for semantic retrieval here.
 
 ### Spoiler-Safe Context Building
-- Transcripts are filtered to only include content up to the current timestamp
+- Transcripts are filtered again by the backend to only index and retrieve content up to the current timestamp
 - The LLM is prompted to avoid information beyond the current position
-- Responses are validated for spoiler content
+- Retrieved context is timestamp-filtered and the LLM is explicitly prompted not to speculate beyond it
 
 ### Privacy First
 - All LLM processing happens locally on your machine

@@ -2,12 +2,13 @@ from __future__ import annotations
 
 from typing import List, Optional
 
+import requests
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
 from backend.llm import generate_spoiler_safe_answer
-from backend.rag import build_context, build_prompt
+from backend.rag import build_prompt, retrieve_context
 
 
 app = FastAPI(title="Spoiler Safe Backend")
@@ -55,7 +56,15 @@ def ask_question(req: AskRequest) -> AskResponse:
     if not req.transcript:
         raise HTTPException(status_code=400, detail="Transcript is empty.")
 
-    context, context_lines_used, context_chars_used = build_context(req.transcript)
+    try:
+        context, context_lines_used, context_chars_used = retrieve_context(
+            transcript=req.transcript,
+            video_id=req.video_id or f"untitled:{req.title}",
+            current_time=req.current_time,
+            question=req.question,
+        )
+    except (requests.RequestException, RuntimeError) as exc:
+        raise HTTPException(status_code=502, detail=f"Embedding retrieval failed: {exc}") from exc
     if not context.strip():
         raise HTTPException(status_code=400, detail="No usable transcript context found.")
 
